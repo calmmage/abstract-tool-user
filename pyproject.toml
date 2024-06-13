@@ -1,8 +1,6 @@
 [tool.poetry]
-name = "project-name"
+name = "abstract-tool-user"
 version = "0.0.1"
-# Template Version: 0.0.2 # update dockerfile and add basic contents
-# Add scheduled job example
 description = ""
 authors = ["Petr Lavrov <calmmage@gmail.com>"]
 readme = "README.md"
@@ -17,6 +15,7 @@ pytest = "*"
 # logging
 loguru = "*"
 toml = "*"
+langchain = "^0.1.20"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -29,3 +28,6 @@ pre-commit = "*"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[template]
+version = "0.0.2" # update dockerfile and add basic contents
