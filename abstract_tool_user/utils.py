@@ -15,13 +15,20 @@ engine = PromptEngine.OpenAI
 def query_prompt(
     prompt: str,
     engine: PromptEngine = engine,
+    warmup_messages: list[str] = None,
     system: str = "You're a helpful assistant",  # system message / prompt
     model="gpt-3.5-turbo",
     **kwargs,
 ) -> str:
     if engine == PromptEngine.OpenAI:
         # make a call to the openai api
-        return _query_prompt_openai(prompt, model=model, system=system, **kwargs)
+        return _query_prompt_openai(
+            prompt,
+            model=model,
+            system=system,
+            warmup_messages=warmup_messages,
+            **kwargs,
+        )
     elif engine == PromptEngine.LangChain:
         # make a call to the langchain api
         pass
@@ -33,27 +40,43 @@ def query_prompt(
 
 # region 1 - openai api
 def _query_prompt_openai(
-    prompt: str, model="gpt-3.5-turbo", system="You're a helpful assistant", **kwargs
+    prompt: str,
+    model="gpt-3.5-turbo",
+    system="You're a helpful assistant",
+    warmup_messages: list[str] = None,
+    **kwargs,
 ) -> str:
     from dotenv import load_dotenv
 
     load_dotenv()  # init the environment variables - load the api key
     from openai import OpenAI
 
+    messages = []
+    messages.append(
+        {
+            "role": "system",
+            "content": system,
+        },
+        # "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."
+    )
+    # check if the warmup messages are provided and are properly formatted
+    for i, msg in enumerate(warmup_messages):
+        if isinstance(msg, str):
+            role = "user" if i % 2 == 0 else "assistant"
+            msg = {"role": role, "content": msg}
+        messages.append(msg)
+    messages.append(
+        {
+            "role": "user",
+            "content": prompt,
+        },  # "Compose a poem that explains the concept of recursion in programming."
+    )
+
     client = OpenAI()
     # todo: check that system is not a FewshotPrompt class instance
     completion = client.chat.completions.create(
         model=model,
-        messages=[
-            {
-                "role": "system",
-                "content": system,
-            },  # "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."
-            {
-                "role": "user",
-                "content": prompt,
-            },  # "Compose a poem that explains the concept of recursion in programming."
-        ],
+        messages=messages,
         **kwargs,
     )
 

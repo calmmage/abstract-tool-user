@@ -14,7 +14,9 @@ from calmapp.plugins import GptPlugin
 
 # plugins = [MyPlugin, GptPlugin]
 plugins = []
-app = MyApp(plugins=plugins)
+from abstract_tool_user.app import ConversationMode
+
+app = MyApp(conversation_mode=ConversationMode.WITH_HISTORY, plugins=plugins)
 bot_config = BotConfig(app=app)
 
 # set up dispatcher
